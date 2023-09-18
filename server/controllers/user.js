@@ -15,14 +15,22 @@ export const createUser = async (req, res) => {
         status: "fail",
       });
     else {
-      bcrypt.hash(password, 10, (err, hash) => {
-        if (err) console.log(err);
-        const user = new UserModel({ username: username, password: hash });
-        return res.status(200).json({
-          status: "success",
-          data: user,
+      bcrypt
+        .hash(password, 10)
+        .then((hashedPass) => {
+          const user = new UserModel({
+            username: username,
+            password: hashedPass,
+          });
+          user.save();
+          return res.status(200).json({
+            status: "success",
+            data: user,
+          });
+        })
+        .catch((err) => {
+          console.log(err);
         });
-      });
     }
   } catch (error) {
     console.log(error);
@@ -74,10 +82,10 @@ export const updateUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   const { id } = req.params;
   try {
-    const user = await UserModel.findById(id);
+    await UserModel.findByIdAndDelete(id);
     res.json({
       status: "success",
-      data: user,
+      messgae: `${id} deleted`,
     });
   } catch (error) {
     console.log(error);
@@ -101,15 +109,19 @@ export const loginUser = async (req, res) => {
         status: "fail",
         messgae: "username is not exists",
       });
-    bcrypt.compare(password, "my-encrypting-string", (err, result) => {
-      if (err) console.log(err);
-      if (result === password)
+    bcrypt
+      .compare(password, user.password)
+      .then((match) => {
+        if (!match) return res.status(403).json({ message: `wrong password` });
         return res.status(200).json({
           status: "success",
           id: user._id,
           username: username,
         });
-    });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   } catch (error) {
     console.log(error);
   }

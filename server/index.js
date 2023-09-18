@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
+import userRoutes from "./routes/user.js";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(bodyParser.urlencoded({ limit: "30mbs", extended: true }));
 app.get("/", (req, res) => {
   res.send("Hello, Cinema!");
 });
+app.use("/users", userRoutes);
 
 mongoose
   .connect(db_url, {
