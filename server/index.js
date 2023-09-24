@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import userRoutes from "./routes/user.js";
+import categoryRoutes from "./routes/category.js";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
   res.send("Hello, Cinema!");
 });
 app.use("/users", userRoutes);
+app.use("/categories", categoryRoutes);
 
 mongoose
   .connect(db_url, {
