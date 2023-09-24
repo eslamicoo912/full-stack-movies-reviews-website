@@ -5,6 +5,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import userRoutes from "./routes/user.js";
 import categoryRoutes from "./routes/category.js";
+import movieRoutes from "./routes/movie.js";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.get("/", (req, res) => {
 });
 app.use("/users", userRoutes);
 app.use("/categories", categoryRoutes);
+app.use("/movies", movieRoutes);
 
 mongoose
   .connect(db_url, {

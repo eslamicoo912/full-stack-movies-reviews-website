@@ -1,12 +1,21 @@
 import MovieModel from "../models/movie.js";
+import CategoryModel from "../models/category.js";
 
 export const createMovie = async (req, res) => {
+  const { category_id } = req.body;
   try {
-    const movie = new MovieModel(req.body);
-    movie.save();
-    res.json({
-      status: "success",
-      data: movie,
+    const category = await CategoryModel.findById(category_id);
+    if (category) {
+      const movie = new MovieModel(req.body);
+      movie.save();
+      return res.status(200).json({
+        status: "success",
+        data: movie,
+      });
+    }
+    return res.status(404).json({
+      status: "fail",
+      message: "category not found",
     });
   } catch (error) {
     console.log(error);
@@ -54,10 +63,14 @@ export const getMoviesByTitle = async (req, res) => {
 export const getMoviesByType = async (req, res) => {
   const { type } = req.params;
   try {
-    const movies = await MovieModel.find({ type: type });
+    const movies = await MovieModel.find();
+    const filteredMovies = movies.filter((movie) => {
+      const types = movie.type.split(" - ");
+      return types.includes(type);
+    });
     res.json({
       status: "success",
-      data: movies,
+      data: filteredMovies,
     });
   } catch (error) {
     console.log(error);
@@ -65,12 +78,12 @@ export const getMoviesByType = async (req, res) => {
 };
 
 export const getMoviesBySearch = async (req, res) => {
-  const { title, language, type } = req.query;
+  const { title, language, year } = req.query;
   try {
     const movies = await MovieModel.find({
       title: title,
       language: language,
-      type: type,
+      year: year,
     });
     res.json({
       status: "success",
@@ -84,7 +97,7 @@ export const getMoviesBySearch = async (req, res) => {
 export const updateMovie = async (req, res) => {
   const { id } = req.params;
   try {
-    const movie = await MovieModel.findOneAndUpdate(
+    const movie = await MovieModel.findByIdAndUpdate(
       id,
       { $set: req.body },
       { new: true }
@@ -101,7 +114,7 @@ export const updateMovie = async (req, res) => {
 export const deleteMovie = async (req, res) => {
   const { id } = req.params;
   try {
-    await MovieModel.findOneAndDelete(id);
+    await MovieModel.findByIdAndDelete(id);
     res.json({
       status: "success",
       message: `${id} deleted`,
