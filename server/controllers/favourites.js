@@ -13,6 +13,18 @@ export const createFavourite = async (req, res) => {
   }
 };
 
+export const getAllFavourites = async (req, res) => {
+  try {
+    const favourites = await FavouriteModel.find();
+    res.json({
+      status: "success",
+      data: favourites,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const deleteFavourite = async (req, res) => {
   const { id } = req.params;
   try {
